@@ -132,6 +132,7 @@ def check_config(config, is_local):
 def get_config(is_local):
     global verbose
     config = {}
+    config['socks_auth'] = [0, 0, 0]
     config_path = None
     logging.basicConfig(level=logging.INFO,
                         format='%(levelname)-s: %(message)s')
@@ -170,7 +171,6 @@ def get_config(is_local):
                     logging.error('found an error in config.json: %s', str(e))
                     sys.exit(1)
 
-        config['socks_auth'] = [0, 0, 0]
         v_count = 0
         for key, value in optlist:
             if key == '-p':
