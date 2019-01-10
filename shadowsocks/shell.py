@@ -138,7 +138,7 @@ def get_config(is_local):
     if is_local:
         shortopts = 'hd:s:b:p:k:l:m:O:o:G:g:c:t:vq'
         longopts = ['help', 'fast-open', 'pid-file=', 'log-file=', 'user=',
-                    'version']
+                    'version', 'socks-user=', 'socks-pass=', 'socks-reply-to-wrong-pass']
     else:
         shortopts = 'hd:s:p:k:m:O:o:G:g:c:t:vq'
         longopts = ['help', 'fast-open', 'pid-file=', 'log-file=', 'workers=',
@@ -170,7 +170,7 @@ def get_config(is_local):
                     logging.error('found an error in config.json: %s', str(e))
                     sys.exit(1)
 
-
+        config['socks_auth'] = [0, 0, 0]
         v_count = 0
         for key, value in optlist:
             if key == '-p':
@@ -207,6 +207,12 @@ def get_config(is_local):
                 config['manager_address'] = value
             elif key == '--user':
                 config['user'] = to_str(value)
+            elif key == '--socks-user':
+                config['socks_auth'][0] = to_str(value)
+            elif key == '--socks-pass':
+                config['socks_auth'][1] = to_str(value)
+            elif key == '--socks-reply-to-wrong-pass':
+                config['socks_auth'][2] = 1
             elif key == '--forbidden-ip':
                 config['forbidden_ip'] = to_str(value)
 
@@ -251,6 +257,7 @@ def get_config(is_local):
     config['connect_verbose_info'] = config.get('connect_verbose_info', 0)
     config['local_address'] = to_str(config.get('local_address', '127.0.0.1'))
     config['local_port'] = config.get('local_port', 1080)
+    config['socks_auth'] = config.get('socks_auth', [])
     if is_local:
         if config.get('server', None) is None:
             logging.error('server addr not specified')
@@ -326,6 +333,10 @@ Proxy options:
   -t TIMEOUT             timeout in seconds, default: 300
   --fast-open            use TCP_FASTOPEN, requires Linux 3.7+
 
+  --socks-user USERNAME         socks5 auth username
+  --socks-pass PASSWORD         socks5 auth password
+  --socks-reply-to-wrong-pass   open to reply to wrong socks auth normally
+
 General options:
   -h, --help             show this help message and exit
   -d start/stop/restart  daemon mode
@@ -337,6 +348,11 @@ General options:
   --version              show version information
 
 Online help: <https://github.com/shadowsocks/shadowsocks>
+
+Usage of socks auth:
+In config.json you should write "socks_auth":["username", "password"]
+To open socks-reply-to-wrong-pass, you should write "socks_auth":["username", "password", True]
+
 ''')
 
 
